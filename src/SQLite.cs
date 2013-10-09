@@ -3236,8 +3236,9 @@ namespace SQLite
 		string GetSqlName (Expression expr)
 		{
 			var n = expr.NodeType;
-			if (n == ExpressionType.GreaterThan)
-				return ">"; else if (n == ExpressionType.GreaterThanOrEqual) {
+			if (n == ExpressionType.GreaterThan) {
+				return ">"; 
+			} else if (n == ExpressionType.GreaterThanOrEqual) {
 				return ">=";
 			} else if (n == ExpressionType.LessThan) {
 				return "<";
