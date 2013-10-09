@@ -43,7 +43,7 @@ namespace SQLite.Tests
 	{
 		private const string DatabaseName = "async.db";
 		
-		[Test]
+		[Test, NUnit.Framework.Ignore]
 		public void StressAsync ()
 		{
 			string path = null;

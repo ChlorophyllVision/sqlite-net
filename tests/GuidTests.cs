@@ -70,8 +70,9 @@ namespace SQLite.Tests {
             var obj1 = new TestObj() { Id = guid1, Text = "First Guid Object" };
             var obj2 = new TestObj() { Id = guid2, Text = "Second Guid Object" };
 
-            var numIn1 = db.Insert(obj1);
-            var numIn2 = db.Insert(obj2);
+			db.Insert(obj1);
+			db.Insert(obj2);
+
             Assert.AreEqual(guid1, obj1.Id);
             Assert.AreEqual(guid2, obj2.Id);
 
@@ -84,17 +85,15 @@ namespace SQLite.Tests {
             var db = new SQLiteConnection(TestPath.GetTempFileName());
             db.CreateTable<TestObj>(CreateFlags.AutoIncPK);
 
-            var guid1 = new Guid("36473164-C9E4-4CDF-B266-A0B287C85623");
-            var guid2 = new Guid("BC5C4C4A-CA57-4B61-8B53-9FD4673528B6");
-
             var obj1 = new TestObj() { Text = "First Guid Object" };
             var obj2 = new TestObj() { Text = "Second Guid Object" };
 
             Assert.AreEqual(Guid.Empty, obj1.Id);
             Assert.AreEqual(Guid.Empty, obj2.Id);
 
-            var numIn1 = db.Insert(obj1);
-            var numIn2 = db.Insert(obj2);
+            db.Insert(obj1);
+            db.Insert(obj2);
+
             Assert.AreNotEqual(Guid.Empty, obj1.Id);
             Assert.AreNotEqual(Guid.Empty, obj2.Id);
             Assert.AreNotEqual(obj1.Id, obj2.Id);

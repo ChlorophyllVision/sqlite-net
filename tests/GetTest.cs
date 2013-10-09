@@ -103,8 +103,6 @@ namespace SQLite.Tests
 
         class Person : EntityWithId
         {
-            private bool isInitialized;
-
             public Person()
             {
                 this.Name = new Name();

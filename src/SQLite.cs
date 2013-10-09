@@ -206,7 +206,7 @@ namespace SQLite
 		/// Used to list some code that we want the MonoTouch linker
 		/// to see, but that we never want to actually execute.
 		/// </summary>
-		static bool _preserveDuringLinkMagic;
+		static bool _preserveDuringLinkMagic = false;
 
 		/// <summary>
 		/// Sets a busy handler to sleep the specified amount of time when a table is locked.
@@ -3297,16 +3297,15 @@ namespace SQLite
 		}
 		
 		//TODO: refactor this
-		public T GetDependentObjects<T>(T @object)
+		public T GetDependentObjects(T @object)
 		{			
 			var t = typeof(T);
 			PropertyInfo one2ManyProp = null;
 			PropertyInfo one2OneProp = null;
 			Type childCollectionType = null;
-			Type childType = null;			
-			bool lazyProp = false;
+			Type childType = null;
 			string childIdPropName = string.Empty;
-			string id = GetPrimaryKeyValue<T>(@object);
+			string id = GetPrimaryKeyValue(@object);
 		    var hasInitializedProperty = InitializedAttribute.IsDefined(@object);
             var isInitialized = !hasInitializedProperty ? false : (bool)BaseAttribute.GetValueOfProperty<InitializedAttribute>(@object);
 
@@ -3314,14 +3313,13 @@ namespace SQLite
 				foreach (var p in t.GetProperties()) {
 					var one2Many = p.GetCustomAttributes (typeof(One2ManyAttribute), true);
 					var one2One = p.GetCustomAttributes (typeof(One2OneAttribute), true);
-					var pk = p.GetCustomAttributes (typeof(PrimaryKeyAttribute), true);
 					var lazy = p.GetCustomAttributes (typeof(LazyAttribute), true);
 #if !NETFX_CORE
 					var isOne2Many = one2Many.Length > 0;
 					var isOne2One = one2One.Length > 0;
 					var isLazy = lazy.Length > 0;
-                    
 #else
+					var pk = p.GetCustomAttributes (typeof(PrimaryKeyAttribute), true);
 					var isOne2Many = one2Many.Count() > 0;
 					var isOne2One = one2One.Count() > 0;
 					var isPK = pk.Count() > 0;
@@ -3342,7 +3340,7 @@ namespace SQLite
 							childType = (one2One [0] as One2OneAttribute).Value;
 							one2OneProp = p;
 							if(one2OneProp.GetValue(@object,null) == null || (hasInitializedProperty && !isInitialized))
-								@object = this.GetDependentObject<T>(@object,one2OneProp,childType,id);
+								@object = this.GetDependentObject(@object,one2OneProp,childType,id);
 						}
 					}
 				}
@@ -3353,7 +3351,7 @@ namespace SQLite
 			return @object;
 		}
 
-	    private static string GetPrimaryKeyValue<T>(object instance)
+	    private static string GetPrimaryKeyValue(object instance)
 	    {
             if (!PrimaryKeyAttribute.IsDefined(instance))
             {
@@ -3363,7 +3361,7 @@ namespace SQLite
 	        return BaseAttribute.GetValueOfProperty<PrimaryKeyAttribute>(instance).ToString();
 	    }
 
-	    public T GetDependentObject<T> (T @object, PropertyInfo one2OneProp, Type childType,string id)
+	    public T GetDependentObject(T @object, PropertyInfo one2OneProp, Type childType,string id)
 		{
 			string childIdPropName = string.Empty;
 				
@@ -3390,7 +3388,7 @@ namespace SQLite
 			return this.Connection.Query (new TableMapping (childType), q, null);
 		}
 		
-		private T SetChildCollectionToObject<T>(T @object,Type childCollectionType, PropertyInfo one2ManyProp,string childIdPropName, string id)
+		private T SetChildCollectionToObject(T @object,Type childCollectionType, PropertyInfo one2ManyProp,string childIdPropName, string id)
 		{
 			var qRes = GetObjects(childCollectionType,childIdPropName,id);
 			var rProp = @object.GetType ().GetProperty (one2ManyProp.Name);
@@ -3409,7 +3407,7 @@ namespace SQLite
 			return @object;
 		}
 		
-		private T SetChildToObject<T>(T @object,Type childType, PropertyInfo one2OneProp,string childIdPropName, string id)
+		private T SetChildToObject(T @object,Type childType, PropertyInfo one2OneProp,string childIdPropName, string id)
 		{
 			var qRes = GetObjects(childType,childIdPropName,id);
 
